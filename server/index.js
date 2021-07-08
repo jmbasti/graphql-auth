@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const models = require("./models");
 const { graphqlHTTP } = require("express-graphql");
 const mongoose = require("mongoose");
@@ -11,7 +12,12 @@ require("dotenv").config();
 
 const app = express();
 // CORS
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true, // <-- REQUIRED backend setting
+};
+app.use(cors(corsOptions));
+
 // BODY_PARSER
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -29,6 +35,10 @@ app.use(
     resave: true,
     saveUninitialized: true,
     secret: "aaabbbccc",
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      autoReconnect: true,
+    }),
   })
 );
 // PASSPORT
